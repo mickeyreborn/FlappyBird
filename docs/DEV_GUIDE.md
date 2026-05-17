@@ -139,7 +139,7 @@ Canvas **只挂** `UITransform`、`Canvas`、`Widget`，不要挂自定义脚本
 
 - **每个 Cocos 项目** 都要本地装扩展；**不能**多工程同时共用一个 `localhost:3000`。
 - 单项目：端口 3000；多项目并行：每工程不同端口（3000、3001…），Cursor 工作区 `mcp.json` 与之一致。
-- 详见 [MCP_SETUP.md](./MCP_SETUP.md) 与 [templates/](./templates/)。
+- 配置见 [MCP_SETUP.md](./MCP_SETUP.md)；**导入图片后让 Cursor 绑资源**见 [第八节](#八资源与-mcp)。
 
 ### 5. 协作与克隆
 
@@ -182,6 +182,65 @@ flowchart LR
 ```
 
 
+
+---
+
+## 八、资源与 MCP
+
+图片等资源放进 `assets/` 后，要让 **Cursor 在编辑器里绑定 Sprite、改场景**，需同时满足：**Creator 已打开本项目**、**MCP 已启动**、**资源库已刷新**。仅改磁盘文件无法更新场景引用。
+
+### 前置条件
+
+1. 已安装 `extensions/cocos-mcp-server`，并按 [MCP_SETUP.md](./MCP_SETUP.md) 配置 `.cursor/mcp.json`。
+2. Cocos Creator 打开 **本工程**，扩展面板 **启动 MCP**（单项目默认端口 3000）。
+3. Cursor 打开本项目根目录，MCP `cocos-creator` 已连接。
+
+### 推荐流程
+
+```
+放入 assets/textures/xxx.png
+  → Creator 自动导入（或 资源→刷新 / 让 Cursor 执行 refresh_assets）
+  → 生成 xxx.png.meta，纹理类型为 sprite-frame
+  → 在 Cursor 用自然语言说明绑定目标
+  → Creator 场景里确认 Sprite Frame，播放预览
+```
+
+
+| 步骤  | 操作                                           |
+| --- | -------------------------------------------- |
+| 1   | 图片拷到 `assets/textures/`（或 Creator 拖入）        |
+| 2   | 确认资源面板可见；无 meta 则 **资源 → 刷新**                |
+| 3   | 启动 MCP，Cursor 中描述需求（见下方示例）                   |
+| 4   | 在 Creator 检查节点 **Sprite → Sprite Frame**，再预览 |
+
+
+### Cursor 示例指令
+
+- 「刷新 assets，把 `db://assets/textures/bird.png` 绑到 Main 场景 Bird 的 Sprite。」
+- 「列出 `assets/textures` 下所有纹理。」
+- 「把 Background 的 Sprite 换成 `sky.png`。」
+
+说明资源时优先用 `**db://assets/...`** 路径。MCP 常用能力：`refresh_assets`、`get_assets` / `get_asset_info`、场景/组件修改类工具。
+
+### 两种模式对比
+
+
+| 模式               | Cursor 能做          | 不能做            |
+| ---------------- | ------------------ | -------------- |
+| 仅改文件（无 MCP）      | 复制/重命名 `.png`、改脚本  | 绑 Sprite、改场景引用 |
+| MCP + Creator 已开 | 刷新资源库、查 UUID、改场景绑图 | 完全替代编辑器做复杂美术设置 |
+
+
+### 注意事项
+
+- `**.png` 与 `.png.meta` 一并提交 Git**，勿手写 meta UUID。
+- 2D **Sprite** 需纹理类型为 **sprite-frame**（导入后于 Inspector 确认）。
+- `extensions/`、`.cursor/` 未进库，clone 后需本地装 MCP。
+- 多项目并行时，Cursor 端口须与**当前 Creator 工程**的 `settings/mcp-server.json` 一致。
+
+### 不用 MCP 时
+
+在 Creator 中手动：选中节点 → **Sprite → Sprite Frame** 拖入资源；Cursor 只负责脚本逻辑。
 
 ---
 
